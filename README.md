@@ -30,6 +30,8 @@ __ __
 
 # Demo
 > To be added...
+
+Menu provided by: [Beaupy](https://github.com/petereon/beaupy)
 __ __
 
 
