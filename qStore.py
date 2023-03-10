@@ -142,14 +142,14 @@ def encode_video(file_name):
         data_enc = gcm.stringE(enc_data=data, key=eKey) #encrypts data and returns base64 encoded string
 
 
-    video_file = generate_video(duration=10)
+    video_file = generate_video(duration=10) #decide how long you want the video to be. (longer takes..well..longer to make and extract frames.)
     frame_extraction(video_file)
 
 
-    f_name=f".tmp/0.png"
+    f_name=f".tmp/25.png"
     dct_img = cv2.imread(f_name, cv2.IMREAD_UNCHANGED)
 
-    qr_code = pyqrcode.create(data_enc, error='L')
+    qr_code = pyqrcode.create(data_enc, error='M', version=27, mode='binary')
     qr_code.png('qr_code.png', scale=10)
 
 
@@ -173,7 +173,7 @@ def encode_video(file_name):
 
 def decode_video(video, b64_enc_key):
     frame_extraction(video)
-    f_name=f".tmp/0.png"
+    f_name=f".tmp/25.png"
     try:
         img = Image.open(f_name)
         result = pyzbar.decode(img)[0].data.decode('utf-8')
