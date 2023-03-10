@@ -313,6 +313,7 @@ if __name__ == '__main__':
                 c.execute(f"DELETE FROM items WHERE id = '{delete_id.strip()}'")
             conn.commit()
             conn.close()
+            return True
 
 
 
@@ -497,7 +498,8 @@ if __name__ == '__main__':
                             if not check:
                                 clear()
                                 continue
-
+                            
+                            clear()
                             input('[INFO] Database has been updated!\n\nPress "enter" to continue...')
                             clear()
                     else:
