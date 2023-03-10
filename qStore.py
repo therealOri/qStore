@@ -62,9 +62,8 @@ def generate_filename():
 
 
 
-def generate_video():
+def generate_video(duration):
     output_filename = generate_filename()
-    duration=7
     width=640
     height=480
     fps=30
@@ -143,7 +142,7 @@ def encode_video(file_name):
         data_enc = gcm.stringE(enc_data=data, key=eKey) #encrypts data and returns base64 encoded string
 
 
-    video_file = generate_video()
+    video_file = generate_video(duration=10)
     frame_extraction(video_file)
 
 
