@@ -19,8 +19,8 @@ __ __
 # How-to
 - Archive the files you want to store.
 - Upload to qStore.
-- Add record to database to keep track.
 - Upload video to youtube account specifically for these kinds of videos.
+- Add record to database to keep track.
 - Download the video via url/link and then provide to qStore.
 - It will extract the data and give you the .zip or .tar.gz file with a "random" name.
 __ __
