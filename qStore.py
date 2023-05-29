@@ -8,16 +8,20 @@ from pystyle import Colors, Colorate
 from tqdm import tqdm
 import shutil
 import magic
-import gcm
+from Chaeslib import Chaes
 import base64
 from pytube import YouTube
-from subprocess import call,STDOUT
+from subprocess import call, STDOUT
 from PIL import Image
 import pyqrcode
 import pyzbar.pyzbar as pyzbar
 import sqlite3
 import wget
+import math
 
+
+
+chaes = Chaes()
 
 
 
@@ -71,10 +75,10 @@ def generate_video(duration):
     fourcc = cv2.VideoWriter_fourcc(*'FFV1')
     out = cv2.VideoWriter(output_filename, fourcc, fps, (width, height))
 
-    # Generate "random" background color  |  BGR from left to right
+    # Generates a "random" background color  |  BGR from left to right
     background_color = tuple(secrets.randbelow(256) for i in range(3)) #(0, 0, 255) = red
 
-    # Create frames with "random" background color
+    # Creates frames with the "random" color
     for i in tqdm(range(int(fps * duration)), desc="Creating video..."):
         frame = np.zeros((height, width, 3), dtype=np.uint8)
         frame[:, :, :] = background_color
@@ -96,12 +100,31 @@ def clean_tmp(path=".tmp"):
 
 
 
+def split_string(s_str, count=21):
+    per_c=math.ceil(len(s_str)/count)
+    c_cout=0
+    out_str=''
+    split_list=[]
+    for s in s_str:
+        out_str+=s
+        c_cout+=1
+        if c_cout == per_c:
+            split_list.append(out_str)
+            out_str=''
+            c_cout=0
+    if c_cout!=0:
+        split_list.append(out_str)
+    return split_list
+
+
+
+
 
 def frame_extraction(video):
     if not os.path.exists(".tmp"):
         os.makedirs(".tmp")
     temp_folder=".tmp"
-    print("[INFO] tmp directory has been created")
+    print("[INFO] tmp directory has been created.")
     vidcap = cv2.VideoCapture(video)
     count = 0
     n_frames = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -121,6 +144,7 @@ def frame_extraction(video):
 
 
 def encode_video(file_name):
+    chaes_ev = Chaes() # each time this function is called and you want to encode a video with a file, a new "chaes.salt" will be generated.
     clear()
     key_data = beaupy.prompt("Data for key gen")
     if not key_data:
@@ -129,35 +153,40 @@ def encode_video(file_name):
     key_data = key_data.encode()
 
     clear()
-    eKey = gcm.keygen(key_data) #Returns random bytes from Argon2id and will return "None" if what's provided is less than 100 characters.
+    eKey = chaes.keygen(key_data) #Returns random bytes from Argon2id and will return "None" if what's provided is less than 100 characters.
     if not eKey:
         return
 
-    save_me = base64.b64encode(eKey) #for saving eKey to decrypt later.
-    input(f'Save this key so you can decrypt and decode later: {save_me.decode()}\n\nPress "enter" to contine...')
+    save_me = base64.b64encode(eKey)
+    bSalt = base64.b64encode(chaes_ev.salt)
+    master_key = f"{save_me.decode()}:{bSalt.decode()}"
+    input(f'Save this key so you can decrypt and decode later: {master_key}\n\nPress "enter" to contine...')
     clear()
 
     with open(file_name, 'rb') as rb:
         data = rb.read()
-        data_enc = gcm.stringE(enc_data=data, key=eKey) #encrypts data and returns base64 encoded string
+        data_enc = chaes.encrypt(data, eKey)
 
 
+    split_string_list=split_string(data_enc, 31)
     video_file = generate_video(duration=10) #decide how long you want the video to be. (longer takes..well..longer to make and extract frames.)
     frame_extraction(video_file)
 
 
-    f_name=f".tmp/25.png"
-    dct_img = cv2.imread(f_name, cv2.IMREAD_UNCHANGED)
+    for i in range(len(split_string_list)):
+        root=".tmp/"
+        f_name=f"{root}{i}.png"
+        dct_img = cv2.imread(f_name, cv2.IMREAD_UNCHANGED)
 
-    qr_code = pyqrcode.create(data_enc, error='M', version=27, mode='binary')
-    qr_code.png('qr_code.png', scale=10)
+        qr_code = pyqrcode.create(split_string_list[i], error='M', version=27, mode='binary')
+        qr_code.png(f'{root}qr_code{i}.png', scale=10)
 
+        # Overlay the QR code on the original image
+        qr_image = cv2.imread(f'{root}qr_code{i}.png', cv2.IMREAD_UNCHANGED)
+        qr_image = cv2.resize(qr_image, (dct_img.shape[1], dct_img.shape[0]))
+        cv2.imwrite(f_name, qr_image)
+        print(f"[INFO] frame {f_name} holds {split_string_list[i]}")
 
-    # Overlay the QR code on the original image
-    qr_image = cv2.imread('qr_code.png', cv2.IMREAD_UNCHANGED)
-    qr_image = cv2.resize(qr_image, (dct_img.shape[1], dct_img.shape[0]))
-    cv2.imwrite(f_name, qr_image)
-    print(f"[INFO] frame {f_name} holds {data_enc}")
 
     output_vid = '.tmp_vid.avi'
     call(["ffmpeg", "-framerate", "30", "-i", ".tmp/%d.png" , "-vcodec", 'ffv1', output_vid, "-y"], stdout=open(os.devnull, "w"), stderr=STDOUT)
@@ -165,7 +194,6 @@ def encode_video(file_name):
     os.walk(f".tmp/{output_vid}", cwd)
     clean_tmp()
     os.rename(output_vid, video_file)
-    os.remove("qr_code.png")
     return True
 
 
@@ -173,21 +201,34 @@ def encode_video(file_name):
 
 def decode_video(video, b64_enc_key):
     frame_extraction(video)
-    f_name=f".tmp/25.png"
-    try:
-        img = Image.open(f_name)
-        result = pyzbar.decode(img)[0].data.decode('utf-8')
-        print(f"[INFO] found data in: {f_name}. Data: {result}")
-    except Exception as e:
-        input(f'[DEBUG] an error has occured..."{e}"\n\nPress "enter" to contine...')
-        return None
+    secret=[]
+    root=".tmp/"
+    for i in range(len(os.listdir(root))):
+        f_name = f"{root}{i}.png"
+        try:
+            img = Image.open(f_name)
+            result = pyzbar.decode(img)[0].data.decode('utf-8')
+            print(f"[INFO] found data in: {f_name}. Data: {result}")
+            secret.append(result)
+        except Exception: # hoping the error that happens is an out of index error. Which would mean there are no more qr codes to read.
+            input(f'[INFO] No more data/QR codes can be found."\n\nPress "enter" to contine...')
+            break # not sure if the "break" here is needed.
 
+
+    result = ''.join(list(secret))
     clean_tmp()
-    dKey = base64.b64decode(b64_enc_key)
+    enc_message = chaes.hex_to_base64(result)
+    json_input = base64.b64decode(enc_message)
+    key_and_salt = b64_enc_key.split(":")
+    salt_1 = key_and_salt[1]
+    key_0 = key_and_salt[0]
 
-    str_dcr = gcm.stringD(dcr_data=result, key=dKey)
-    gcm.clear()
-    return str_dcr
+    salt = base64.b64decode(salt_1)
+    key = base64.b64decode(key_0)
+
+    cha_aes_crypt = chaes.decrypt(key, json_input, salt)
+    clear()
+    return cha_aes_crypt
 
 
 
@@ -264,6 +305,7 @@ if __name__ == '__main__':
             else:
                 input('File is not a supported archive type - (.zip or .tar.gz)\n\nPress "enter" to continue...')
                 clear()
+
 
         if main_options[2] in main_option:
             yt_url = beaupy.prompt("Youtube video url/link.")
@@ -396,23 +438,30 @@ if __name__ == '__main__':
             with open(file_path, 'rb') as fr:
                 data = fr.read()
 
-            b64eData = base64.b64encode(data)
-            enc_data = gcm.stringE(enc_data=b64eData, key=key)
+            enc_data = chaes.encrypt(data, key)
 
             with open(f'{file_path}', 'w') as fw:
                 fw.write(enc_data)
             os.rename(file_path, file_path.replace(file_path, f'{file_path}.locked'))
 
 
-        def unlock(file_path, key):
+        def unlock(file_path, dKey):
             with open(file_path, 'r') as fr:
                 data = fr.read()
 
-            dcr_data = gcm.stringD(dcr_data=data, key=key)
-            b64dData = base64.b64decode(dcr_data)
+            enc_message = chaes.hex_to_base64(data)
+            json_input = base64.b64decode(enc_message)
+            key_and_salt = dKey.split(":")
+            salt_1 = key_and_salt[1]
+            key_0 = key_and_salt[0]
+
+            salt = base64.b64decode(salt_1)
+            key = base64.b64decode(key_0)
+
+            cha_aes_crypt = chaes.decrypt(key, json_input, salt)
 
             with open(file_path, 'wb') as fw:
-                fw.write(b64dData)
+                fw.write(cha_aes_crypt)
             os.rename(file_path, file_path.replace('.locked', ''))
 
 
@@ -539,6 +588,7 @@ if __name__ == '__main__':
 
 
                 if db_options[3] in db_option:
+                    chaes2 = Chaes()
                     clear()
                     key_data = beaupy.prompt("Data for key generation. - (100+ characters)")
                     if not key_data:
@@ -547,13 +597,15 @@ if __name__ == '__main__':
                     key_data = key_data.encode()
 
                     clear()
-                    eKey = gcm.keygen(key_data)
+                    eKey = chaes2.keygen(key_data)
                     if not eKey:
                         clear()
                         continue
 
                     save_me = base64.b64encode(eKey)
-                    input(f'Save this key so you can unlock the database later: {save_me.decode()}\n\nPress "enter" to contine...')
+                    bSalt = base64.b64encode(chaes2.salt)
+                    master_key = f"{save_me.decode()}:{bSalt.decode()}"
+                    input(f'Save this key so you can decrypt and decode later: {master_key}\n\nPress "enter" to contine...')
                     clear()
 
 
@@ -590,6 +642,15 @@ if __name__ == '__main__':
                                 clear()
                                 continue
 
+                            try:
+                                enc_key_check = enc_key2.split(':')
+                            except Exception:
+                                clear()
+                                print("Provided key isn't a valid chaeslib key...\n\n")
+                                input('Press "enter" to continue...')
+                                clear()
+                                continue
+
                             lock(file_path, enc_key)
                             clear()
                             input('Your file has been succesfully locked!\n\nPress "enter" to continue...')
@@ -618,12 +679,23 @@ if __name__ == '__main__':
                             enc_key2 = beaupy.prompt("Encryption Key: ")
 
                             try:
-                                enc_key2 = base64.b64decode(enc_key2)
+                                enc_key_check = enc_key2
+                                enc_key_check = base64.b64decode(enc_key_check)
                             except Exception:
                                 clear()
                                 print("Provided key isn't base64 encoded...\n\n")
                                 input('Press "enter" to continue...')
                                 clear()
+                                continue
+
+                            try:
+                                enc_key_check = enc_key2.split(':')
+                            except Exception:
+                                clear()
+                                print("Provided key isn't a valid chaeslib key...\n\n")
+                                input('Press "enter" to continue...')
+                                clear()
+                                continue
 
                             unlock(file_path2, enc_key2)
                             clear()
