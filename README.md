@@ -16,11 +16,29 @@ __ __
 <br>
 <br>
 
+# Updates
+5/29/23
+
+Updated:
+
+- Encryption method now uses [Chaeslib](https://github.com/therealOri/Chaeslib) instead of only gcm/GCMlib.
+
+- When encoding a file into a video, it will now split the resulting encrypted data into segements. And for each segment it gets split into a QR code will be made, the segmented data will be put into the qr code, and the qr code pasted into a frame of the video.
+
+- Updated some if checks for more key verification.
+
+- Fixed some typos and updated some wording.
+
+
+
+<br>
+<br>
+
 # How-to
-- Archive the files you want to store.
-- Upload to qStore.
+- Archive the files you want to store. (.zip or .tar.gz)
+- Upload to qStore and encode a video.
 - Upload video to youtube account specifically for these kinds of videos.
-- Add record to database to keep track.
+- Add record to database to keep track. (if you want)
 - Download the video via url/link and then provide to qStore.
 - It will extract the data and give you the .zip or .tar.gz file with a "random" name.
 __ __
@@ -34,6 +52,19 @@ __ __
 Menu provided by: [Beaupy](https://github.com/petereon/beaupy)
 __ __
 
+<br>
+<br>
+
+# Installation
+```
+git clone https://github.com/therealOri/qStore.git
+cd qStore
+virtualenv qstrENV
+source qstrENV
+pip install -r requirements.txt
+```
+> If you don't have `virtualenv` you can install it via "pip", `pip install virtualenv`.
+__ __
 
 <br>
 <br>
