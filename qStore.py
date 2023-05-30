@@ -10,7 +10,7 @@ import shutil
 import magic
 from Chaeslib import Chaes
 import base64
-from pytube import YouTube
+import yt_dlp
 from subprocess import call, STDOUT
 from PIL import Image
 import pyqrcode
@@ -68,8 +68,8 @@ def generate_filename():
 
 def generate_video(duration):
     output_filename = generate_filename()
-    width=640
-    height=480
+    width=1920
+    height=1080
     fps=30
 
     fourcc = cv2.VideoWriter_fourcc(*'FFV1')
@@ -141,6 +141,21 @@ def frame_extraction(video):
 
 
 
+def resize_and_center_image(qr_image_path, background_image_path):
+    new_height = 950
+    new_width = 950
+
+    qr_image = cv2.imread(qr_image_path)
+    resized_qr_image = cv2.resize(qr_image, (new_width, new_height))
+    background_image = cv2.imread(background_image_path)
+
+    x = (background_image.shape[1] - resized_qr_image.shape[1]) // 2
+    y = (background_image.shape[0] - resized_qr_image.shape[0]) // 2
+
+    background_image[y:y+resized_qr_image.shape[0], x:x+resized_qr_image.shape[1]] = resized_qr_image
+    cv2.imwrite(background_image_path, background_image)
+
+
 
 
 def encode_video(file_name):
@@ -167,9 +182,8 @@ def encode_video(file_name):
         data = rb.read()
         data_enc = chaes.encrypt(data, eKey)
 
-    
-    #more files in the .zip/tar.gz archive, the bigger this number should be. (300 is max unless you make the video duration longer)
-    split_string_list=split_string(data_enc, 41)
+
+    split_string_list=split_string(data_enc, 50) # This number should be changed depending on how big your .zip/tar.gz archive is. (Bigger = higher)
     video_file = generate_video(duration=10) #decide how long you want the video to be. (longer takes..well..longer to make and extract frames.)
     frame_extraction(video_file)
 
@@ -177,16 +191,13 @@ def encode_video(file_name):
     for i in range(len(split_string_list)):
         root=".tmp/"
         f_name=f"{root}{i}.png"
-        dct_img = cv2.imread(f_name, cv2.IMREAD_UNCHANGED)
+        qr_code_file_name=f'{root}qr_code{i}.png'
 
-        qr_code = pyqrcode.create(split_string_list[i], error='M', version=40, mode='binary')
-        qr_code.png(f'{root}qr_code{i}.png', scale=10)
+        qr_code = pyqrcode.create(split_string_list[i], error='H', version=40, mode='binary')
+        qr_code.png(f'{root}qr_code{i}.png', scale=12)
 
-        # Overlay the QR code on the original image
-        qr_image = cv2.imread(f'{root}qr_code{i}.png', cv2.IMREAD_UNCHANGED)
-        qr_image = cv2.resize(qr_image, (dct_img.shape[1], dct_img.shape[0]))
-        cv2.imwrite(f_name, qr_image)
-        print(f"[INFO] frame {f_name} holds {split_string_list[i]}")
+        resize_and_center_image(qr_code_file_name, f_name)
+        print(f"\n[INFO] frame {f_name} holds {split_string_list[i]}\n")
 
 
     output_vid = '.tmp_vid.avi'
@@ -209,9 +220,9 @@ def decode_video(video, b64_enc_key):
         try:
             img = Image.open(f_name)
             result = pyzbar.decode(img)[0].data.decode('utf-8')
-            print(f"[INFO] found data in: {f_name}. Data: {result}")
+            print(f"\n[INFO] found data in: {f_name}. Data: {result}\n")
             secret.append(result)
-        except Exception: # hoping the error that happens is an out of index error. Which would mean there are no more qr codes to read.
+        except Exception: # hoping the error that happens is an out of index error. Which would mean there are no more qr codes to read. (Or the qr code is un-readable/not found)
             input(f'[INFO] No more data/QR codes can be found."\n\nPress "enter" to contine...')
             break # not sure if the "break" here is needed.
 
@@ -316,9 +327,18 @@ if __name__ == '__main__':
 
             clear()
             print("Downloading video...")
-            yt = YouTube(yt_url)
-            video = yt.streams.get_highest_resolution()
-            video.download()
+            ydl_opts = {
+                'format': 'bestvideo[ext=mp4]/best[ext=mp4]',
+                'outtmpl': '%(title)s.%(ext)s',
+                'postprocessors': [{
+                    'key': 'FFmpegVideoConvertor',
+                    'preferedformat': 'avi'
+                }]
+            }
+
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                ydl.download([yt_url])
+
             input('Video has been downloaded.\n\nPress "enter" to contine...')
             clear()
 
@@ -471,7 +491,7 @@ if __name__ == '__main__':
         if main_options[3] in main_option:
             clear()
             while True:
-                db_options = ["Add record?", "Remove record?", "View records?", "Keygen?", "Lock?", "Unlock?", "Back?"]
+                db_options = ["Add record?", "Remove record?", "View records?", "Lock?", "Unlock?", "Back?"]
                 print(f'{banner()}\n\nWhat would you like to do?\n-----------------------------------------------------------\n')
                 db_option = beaupy.select(db_options, cursor_style="#ffa533")
 
@@ -587,32 +607,8 @@ if __name__ == '__main__':
                         continue
 
 
-
-                if db_options[3] in db_option:
-                    chaes2 = Chaes()
-                    clear()
-                    key_data = beaupy.prompt("Data for key generation. - (100+ characters)")
-                    if not key_data:
-                        clear()
-                        continue
-                    key_data = key_data.encode()
-
-                    clear()
-                    eKey = chaes2.keygen(key_data)
-                    if not eKey:
-                        clear()
-                        continue
-
-                    save_me = base64.b64encode(eKey)
-                    bSalt = base64.b64encode(chaes2.salt)
-                    master_key = f"{save_me.decode()}:{bSalt.decode()}"
-                    input(f'Save this key so you can decrypt and decode later: {master_key}\n\nPress "enter" to contine...')
-                    clear()
-
-
-
                 #Lock Database
-                if db_options[4] in db_option:
+                if db_options[3] in db_option:
                     if os.path.isfile('qS_links.db') or os.path.isfile('qS_links.db.locked'):
                         if os.path.isfile('qS_links.db.locked'):
                             clear()
@@ -628,31 +624,29 @@ if __name__ == '__main__':
                                 continue
                             file_path = file_path.replace('\\ ', ' ').strip()
 
-                            enc_key = beaupy.prompt("Encryption Key: ")
 
-                            if not enc_key or enc_key.lower() == 'q':
+                            # Each time we lock the database, a new key will get made.
+                            chaes2 = Chaes()
+                            clear()
+                            key_data = beaupy.prompt("Data for key generation. - (100+ characters)")
+                            if not key_data:
+                                clear()
+                                continue
+                            key_data = key_data.encode()
+
+                            clear()
+                            eKey = chaes2.keygen(key_data)
+                            if not eKey:
                                 clear()
                                 continue
 
-                            try:
-                                enc_key = base64.b64decode(enc_key)
-                            except Exception:
-                                clear()
-                                print("Provided key isn't base64 encoded...\n\n")
-                                input('Press "enter" to continue...')
-                                clear()
-                                continue
+                            save_me = base64.b64encode(eKey)
+                            bSalt = base64.b64encode(chaes2.salt)
+                            master_key = f"{save_me.decode()}:{bSalt.decode()}"
+                            input(f'Save this key so you can decrypt and decode later: {master_key}\n\nPress "enter" to contine...')
+                            clear()
 
-                            try:
-                                enc_key_check = enc_key2.split(':')
-                            except Exception:
-                                clear()
-                                print("Provided key isn't a valid chaeslib key...\n\n")
-                                input('Press "enter" to continue...')
-                                clear()
-                                continue
-
-                            lock(file_path, enc_key)
+                            lock(file_path, eKey)
                             clear()
                             input('Your file has been succesfully locked!\n\nPress "enter" to continue...')
                             clear()
@@ -668,7 +662,7 @@ if __name__ == '__main__':
 
 
                 #unlock Database
-                if db_options[5] in db_option:
+                if db_options[4] in db_option:
                     if os.path.isfile('qS_links.db') or os.path.isfile('qS_links.db.locked'):
                         if os.path.isfile('qS_links.db.locked'):
                             clear()
@@ -716,7 +710,7 @@ if __name__ == '__main__':
 
 
 
-                if db_options[6] in db_option:
+                if db_options[5] in db_option:
                     clear()
                     break
 ############################### Database Options & functions ###############################
