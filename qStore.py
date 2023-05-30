@@ -167,8 +167,9 @@ def encode_video(file_name):
         data = rb.read()
         data_enc = chaes.encrypt(data, eKey)
 
-
-    split_string_list=split_string(data_enc, 31)
+    
+    #more files in the .zip/tar.gz archive, the bigger this number should be. (300 is max unless you make the video duration longer)
+    split_string_list=split_string(data_enc, 41)
     video_file = generate_video(duration=10) #decide how long you want the video to be. (longer takes..well..longer to make and extract frames.)
     frame_extraction(video_file)
 
@@ -178,7 +179,7 @@ def encode_video(file_name):
         f_name=f"{root}{i}.png"
         dct_img = cv2.imread(f_name, cv2.IMREAD_UNCHANGED)
 
-        qr_code = pyqrcode.create(split_string_list[i], error='M', version=27, mode='binary')
+        qr_code = pyqrcode.create(split_string_list[i], error='M', version=40, mode='binary')
         qr_code.png(f'{root}qr_code{i}.png', scale=10)
 
         # Overlay the QR code on the original image
