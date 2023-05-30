@@ -17,6 +17,15 @@ __ __
 <br>
 
 # Updates
+5/30/23
+
+Updated:
+
+- Youtube compression fix. You should now be able to download the video from youtube and have it extract properly now. 🤞
+- We are using yt_dlp for downloading videos now.
+- 
+__ __
+
 5/29/23
 
 Updated:
