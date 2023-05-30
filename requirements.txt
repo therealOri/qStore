@@ -10,3 +10,4 @@ pyqrcode
 pypng
 pyzbar
 wget
+yt-dlp
