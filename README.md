@@ -23,7 +23,7 @@ Updated:
 
 - Encryption method now uses [Chaeslib](https://github.com/therealOri/Chaeslib) instead of only gcm/GCMlib.
 
-- When encoding a file into a video, it will now split the resulting encrypted data into segements. And for each segment it gets split into a QR code will be made, the segmented data will be put into the qr code, and the qr code pasted into a frame of the video.
+- When encoding a file into a video, it will now split the resulting encrypted data into segements. And for each segment that it gets split into, a QR code will be made. The segmented data will then be put into a qr code, and the qr code will be pasted into a frame of the video.
 
 - Updated some if checks for more key verification.
 
