@@ -158,7 +158,7 @@ def resize_and_center_image(qr_image_path, background_image_path):
 
 
 
-def encode_video(file_name):
+def encode_video(file_name, string_split, vid_length):
     chaes_ev = Chaes() # each time this function is called and you want to encode a video with a file, a new "chaes.salt" will be generated.
     clear()
     key_data = beaupy.prompt("Data for key gen")
@@ -183,8 +183,8 @@ def encode_video(file_name):
         data_enc = chaes.encrypt(data, eKey)
 
 
-    split_string_list=split_string(data_enc, 50) # This number should be changed depending on how big your .zip/tar.gz archive is. (Bigger = higher)
-    video_file = generate_video(duration=10) #decide how long you want the video to be. (longer takes..well..longer to make and extract frames.)
+    split_string_list=split_string(data_enc, string_split)
+    video_file = generate_video(duration=vid_length)
     frame_extraction(video_file)
 
 
@@ -271,13 +271,57 @@ if __name__ == '__main__':
             file_to_store = file_to_store.replace('\\ ', ' ').strip()
 
             if file_to_store.endswith((".zip", ".gz")):
-                clear()
-                none_check = encode_video(file_to_store) # returns True if successful.
-                if not none_check:
+                # This number should be changed depending on how big your .zip/tar.gz archive is. (Bigger = higher)
+                if beaupy.confirm("Would you like to increase the ammount of frames to use to store the encrypted data? - (default is at 51)"):
+                    frames_to_use = beaupy.prompt("How many frames?")
+                    if not frames_to_use:
+                        clear()
+                        continue
+                    try:
+                        frames_to_use = int(frames_to_use)
+                        frames = True
+                    except Exception:
+                        clear()
+                        continue
+                else:
+                    frames = False
+
+
+                if beaupy.confirm('Would you like to change the length of the video that will be made? - (default is "10" seconds)'):
+                    # Decide how long you want the video to be. (longer takes..well..longer to make and extract frames.)
+                    vid_length = beaupy.prompt("How long would you like the duration of the video to be?")
+                    if not vid_length:
+                        clear()
+                        continue
+                    try:
+                        vid_length = int(vid_length)
+                        length = True
+                    except Exception:
+                        clear()
+                        continue
+                else:
+                    length = False
+
+
+                if frames and length == True:
                     clear()
-                    continue
-                input('\n\nPress "enter" to continue...')
-                clear()
+                    none_check = encode_video(file_to_store, frames_to_use, vid_length)
+                elif frames == True and length == False:
+                    vid_length=10
+                    clear()
+                    none_check = encode_video(file_to_store, frames_to_use, vid_length)
+                elif frames == False and length == True:
+                    clear()
+                    frames_to_use=51
+                    none_check = encode_video(file_to_store, frames_to_use, vid_length)
+                else:
+                    clear()
+                    none_check = encode_video(file_to_store) # returns True if successful.
+                    if not none_check:
+                        clear()
+                        continue
+                    input('\n\nPress "enter" to continue...')
+                    clear()
             else:
                 input('Invalid filetype, file must be a .zip or .tar.gz archive.\n\nPress "enter" to continue...')
                 clear()
