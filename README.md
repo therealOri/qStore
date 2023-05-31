@@ -17,6 +17,14 @@ __ __
 <br>
 
 # Updates
+5/31/23
+
+Updated:
+
+- Made the way you control how long a video is and how many frames get used to put a QR code in more convenient.
+__ __
+
+
 5/30/23
 
 Updated:
