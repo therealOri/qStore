@@ -16,6 +16,12 @@ __ __
 <br>
 <br>
 
+# Extra context
+When calling the "`encode_video()`" function, it prompts you to provide "`data for keygen`". This is basically any 100+ random characters you can put together. I personally just press all of the buttons of my keyboard in a satisfying way to get a lot of randomly pressed letters, symbols, and numbers. You could also use [Genter](https://github.com/therealOri/Genter) to generate 100+ characters if you want something with a lot more variety than your keyboard.
+
+<br>
+<br>
+
 # Updates
 5/31/23
 
