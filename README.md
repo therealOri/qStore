@@ -67,7 +67,7 @@ __ __
 - Download the video via url/link and then provide to qStore.
 - It will extract the data and give you the .zip or .tar.gz file with a "random" name.
 
-> If you are using Ubuntu (linux), you may need to install an additional package `sudo apt-get install zbar-tools` in order for the qr codes to be read. This has happened only 1 time so far so just in case, I'm going to put this little note here.
+> If you are using Ubuntu (linux), you will need to install an additional package `sudo apt-get install zbar-tools` in order for the qr codes to be read. This appears to be an ubuntu specific issue. (Maybe Mac as well)
 __ __
 
 <br>
