@@ -7,7 +7,7 @@ __ __
 <br>
 
 # About
-So, I got inspired by DvorakDwarf's [Infinite-Storage-Glitch](https://github.com/DvorakDwarf/Infinite-Storage-Glitch) and wanted to try it out myself but in python and the file data would be encrypted using GCMlib. (AES-GCM).
+So, I got inspired by DvorakDwarf's [Infinite-Storage-Glitch](https://github.com/DvorakDwarf/Infinite-Storage-Glitch) and wanted to try it out myself but in python and the file data would be encrypted using Chaeslib. (AES-GCM + ChaCha20_Poly1305).
 
 The issue and difference with my project here is that the encrypted data is being stored in a QR code instead of actually in the images/video itself. I have tried LSB, RGB, DCT, and Spacial Domain steganography and ALL have failed when I upload to youtube and then download the video. The compression is just to strong and kills any hope I have. I am also unsure how to use the "Binary" option "ISG" uses in python as I can't really find any documentation or libraries that'd help. I would like help to move away from the QR codes, so anything provided in terms of steganography is very appreciated.
 
