@@ -158,7 +158,7 @@ def resize_and_center_image(qr_image_path, background_image_path):
 
 
 
-def encode_video(file_name, string_split, vid_length):
+def encode_video(file_name, string_split=51, vid_length=10):
     chaes_ev = Chaes() # each time this function is called and you want to encode a video with a file, a new "chaes.salt" will be generated.
     clear()
     key_data = beaupy.prompt("Data for key gen")
