@@ -59,6 +59,7 @@ __ __
 <br>
 
 # How-to
+> To be worked on...
 - Archive the files you want to store. (.zip or .tar.gz)
 - Upload to qStore and encode a video.
 - Upload video to youtube account specifically for these kinds of videos.
