@@ -25,6 +25,16 @@ __ __
 <br>
 
 # Updates
+6/2/23
+
+Updated:
+
+- Changed some wording when asked if you want to change how many frames to use.
+
+- Fixed some if checks and after question prompt logic. (Aka, fixed some bugs)
+__ __
+
+
 5/31/23
 
 Updated:
