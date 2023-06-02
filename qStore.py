@@ -272,7 +272,7 @@ if __name__ == '__main__':
 
             if file_to_store.endswith((".zip", ".gz")):
                 # This number should be changed depending on how big your .zip/tar.gz archive is. (Bigger = higher)
-                if beaupy.confirm("Would you like to increase the ammount of frames to use to store the encrypted data? - (default is at 51)"):
+                if beaupy.confirm("Would you like to increase or decrease the ammount of frames to be used for the storing of encrypted data? - (default is at 51)"):
                     frames_to_use = beaupy.prompt("How many frames?")
                     if not frames_to_use:
                         clear()
@@ -306,14 +306,32 @@ if __name__ == '__main__':
                 if frames and length == True:
                     clear()
                     none_check = encode_video(file_to_store, frames_to_use, vid_length)
+                    if not none_check:
+                        clear()
+                        continue
+                    input('\n\nPress "enter" to continue...')
+                    clear()
+
                 elif frames == True and length == False:
                     vid_length=10
                     clear()
                     none_check = encode_video(file_to_store, frames_to_use, vid_length)
+                    if not none_check:
+                        clear()
+                        continue
+                    input('\n\nPress "enter" to continue...')
+                    clear()
+
                 elif frames == False and length == True:
                     clear()
                     frames_to_use=51
                     none_check = encode_video(file_to_store, frames_to_use, vid_length)
+                    if not none_check:
+                        clear()
+                        continue
+                    input('\n\nPress "enter" to continue...')
+                    clear()
+
                 else:
                     clear()
                     none_check = encode_video(file_to_store) # returns True if successful.
@@ -335,7 +353,7 @@ if __name__ == '__main__':
                 continue
             vid_that_has_file = vid_that_has_file.replace('\\ ', ' ').strip()
 
-            dKey = beaupy.prompt("Encryption Key")
+            dKey = beaupy.prompt("Encryption Key", secure=True)
             if not dKey:
                 clear()
                 continue
@@ -543,7 +561,6 @@ if __name__ == '__main__':
                 if not db_option:
                     clear()
                     break
-
 
 
                 if db_options[0] in db_option:
