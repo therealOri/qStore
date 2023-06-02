@@ -76,7 +76,7 @@ __ __
 # Result
 > Github isn't a fan of me embedding the video...
 
-https://www.youtube.com/watch?v=hMS30w23zkQ
+[https://youtu.be/hMS30w23zkQ](https://www.youtube.com/watch?v=hMS30w23zkQ)
 __ __
 
 <br>
@@ -92,6 +92,13 @@ pip install -r requirements.txt
 ```
 > If you don't have `virtualenv` you can install it via "pip", `pip install virtualenv`.
 __ __
+
+<br>
+<br>
+
+# Demo
+[https://youtu.be/PhIr3fGNOlk](https://www.youtube.com/watch?v=PhIr3fGNOlk)
+> Github only allows .mp4 vids that are 10MB or less...
 
 <br>
 <br>
