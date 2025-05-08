@@ -563,7 +563,7 @@ if __name__ == '__main__':
             while True:
                 # Get current page
                 page_items = page_schema.get_page(items, page_number)
-                clear()
+                store.clear()
                 print("Available items (Page {}/{}):\n".format(page_number, page_count))
                 print("{:<5} {:<50} {:<50} {:<50}".format("ID", "Link", "Description", "Encryption Key"))
                 print("-" * 150)
@@ -637,7 +637,7 @@ if __name__ == '__main__':
 
 
         if main_options[3] in main_option:
-            clear()
+            store.clear()
             while True:
                 db_options = ["Add record?", "Remove record?", "View records?", "Lock?", "Unlock?", "Back?"]
                 print(f'{banner()}\n\nWhat would you like to do?\n-----------------------------------------------------------\n')
@@ -645,86 +645,86 @@ if __name__ == '__main__':
 
 
                 if not db_option:
-                    clear()
+                    store.clear()
                     break
 
 
                 if db_options[0] in db_option:
                     if os.path.isfile('qS_links.db') or os.path.isfile('qS_links.db.locked'):
                         if os.path.isfile('qS_links.db.locked'):
-                            clear()
+                            store.clear()
                             print("Database file already encrypted...")
                             input('\n\nPress "enter" to continue...')
-                            clear()
+                            store.clear()
                         else:
-                            clear()
+                            store.clear()
                             link = beaupy.prompt("Url/Link of the video that has your file embedded in it.")
                             if not link or link.lower() == 'q':
-                                clear()
+                                store.clear()
                                 continue
 
                             description = beaupy.prompt("Description of what the file is/contains so you can distinguish what is what.")
                             if not description or description.lower() == 'q':
-                                clear()
+                                store.clear()
                                 continue
 
                             enc_key0 = beaupy.prompt("The key that was used to encrypt the file that is stroed in the video file.")
                             if not enc_key0 or enc_key0.lower() == 'q':
-                                clear()
+                                store.clear()
                                 continue
-                            clear()
+                            store.clear()
                             add_item(link, description, enc_key0)
                             input('[INFO] Database has been updated!\n\nPress "enter" to continue...')
-                            clear()
+                            store.clear()
                     else:
-                        clear()
+                        store.clear()
                         print("qS_links.db not found, downloading from the repository...")
                         wget.download("https://github.com/therealOri/qStore/blob/main/qS_links.db?raw=true")
-                        clear()
+                        store.clear()
                         link = beaupy.prompt("Url/Link of the video that has your file embedded in it.")
                         if not link or link.lower() == 'q':
-                            clear()
+                            store.clear()
                             continue
 
                         description = beaupy.prompt("Description of what the file is/contains so you can distinguish what is what.")
                         if not description or description.lower() == 'q':
-                            clear()
+                            store.clear()
                             continue
 
                         enc_key0 = beaupy.prompt("The key that was used to encrypt the file that is stroed in the video file.")
                         if not enc_key0 or enc_key0.lower() == 'q':
-                            clear()
+                            store.clear()
                             continue
-                        clear()
+                        store.clear()
                         add_item(link, description, enc_key0)
                         input('[INFO] Database has been updated!\n\nPress "enter" to continue...')
-                        clear()
+                        store.clear()
 
 
 
                 if db_options[1] in db_option:
                     if os.path.isfile('qS_links.db') or os.path.isfile('qS_links.db.locked'):
                         if os.path.isfile('qS_links.db.locked'):
-                            clear()
+                            store.clear()
                             print("Database file already encrypted...")
                             input('\n\nPress "enter" to continue...')
-                            clear()
+                            store.clear()
                         else:
-                            clear()
+                            store.clear()
                             check = remove_item()
                             if not check:
-                                clear()
+                                store.clear()
                                 continue
                             
-                            clear()
+                            store.clear()
                             input('[INFO] Database has been updated!\n\nPress "enter" to continue...')
-                            clear()
+                            store.clear()
                     else:
-                        clear()
+                        store.clear()
                         print("qS_links.db not found, downloading from the repository...")
                         wget.download("https://github.com/therealOri/qStore/blob/main/qS_links.db?raw=true")
                         input('\n\nDatabse is empty, nothing to remove.\n\nPress "enter" to continue...')
-                        clear()
+                        store.clear()
                         continue
 
 
@@ -732,25 +732,25 @@ if __name__ == '__main__':
                 if db_options[2] in db_option:
                     if os.path.isfile('qS_links.db') or os.path.isfile('qS_links.db.locked'):
                         if os.path.isfile('qS_links.db.locked'):
-                            clear()
+                            store.clear()
                             print("Database file already encrypted...")
                             input('\n\nPress "enter" to continue...')
-                            clear()
+                            store.clear()
                         else:
-                            clear()
+                            store.clear()
                             check = view_items()
                             if not check:
-                                clear()
+                                store.clear()
                                 continue
 
                             input('Press "enter" to continue...')
-                            clear()
+                            store.clear()
                     else:
-                        clear()
+                        store.clear()
                         print("qS_links.db not found, downloading from the repository...")
                         wget.download("https://github.com/therealOri/qStore/blob/main/qS_links.db?raw=true")
                         input('\n\nDatabse is empty, nothing to view.\n\nPress "enter" to continue...')
-                        clear()
+                        store.clear()
                         continue
 
 
@@ -758,52 +758,52 @@ if __name__ == '__main__':
                 if db_options[3] in db_option:
                     if os.path.isfile('qS_links.db') or os.path.isfile('qS_links.db.locked'):
                         if os.path.isfile('qS_links.db.locked'):
-                            clear()
+                            store.clear()
                             print("Database file already encrypted...")
                             input('\n\nPress "enter" to continue...')
-                            clear()
+                            store.clear()
                         else:
-                            clear()
+                            store.clear()
                             print('Please provide credentials to lock the database.\nPress "q" to go back/quit.\n\n')
                             file_path = beaupy.prompt("File path? - (Drag & drop): ")
                             if not file_path or file_path.lower() == 'q':
-                                clear()
+                                store.clear()
                                 continue
                             file_path = file_path.replace('\\ ', ' ').strip()
 
 
                             # Each time we lock the database, a new key will get made.
                             chaes2 = Chaes()
-                            clear()
+                            store.clear()
                             key_data = beaupy.prompt("Data for key generation. - (100+ characters)")
                             if not key_data:
-                                clear()
+                                store.clear()
                                 continue
                             key_data = key_data.encode()
 
-                            clear()
+                            store.clear()
                             eKey = chaes2.keygen(key_data)
                             if not eKey:
-                                clear()
+                                store.clear()
                                 continue
 
                             save_me = base64.b64encode(eKey)
                             bSalt = base64.b64encode(chaes2.salt)
                             master_key = f"{save_me.decode()}:{bSalt.decode()}"
                             input(f'Save this key so you can decrypt and decode later: {master_key}\n\nPress "enter" to contine...')
-                            clear()
+                            store.clear()
 
                             lock(file_path, eKey)
-                            clear()
+                            store.clear()
                             input('Your file has been succesfully locked!\n\nPress "enter" to continue...')
-                            clear()
+                            store.clear()
                             continue
                     else:
-                        clear()
+                        store.clear()
                         print("qS_links.db not found, downloading from the repository...")
                         wget.download("https://github.com/therealOri/qStore/blob/main/qS_links.db?raw=true")
                         input('\n\nDatabse is empty, skipping on locking the database.\n\nPress "enter" to continue...')
-                        clear()
+                        store.clear()
                         continue
 
 
@@ -812,11 +812,11 @@ if __name__ == '__main__':
                 if db_options[4] in db_option:
                     if os.path.isfile('qS_links.db') or os.path.isfile('qS_links.db.locked'):
                         if os.path.isfile('qS_links.db.locked'):
-                            clear()
+                            store.clear()
                             print('Please provide the correct credentials to unlock the database.\nPress "q" to go back/quit.\n\n')
                             file_path2 = beaupy.prompt("File path? - (Drag & drop): ")
                             if not file_path2 or file_path2.lower() == 'q':
-                                clear()
+                                store.clear()
                             file_path2 = file_path2.replace('\\ ', ' ').strip()
                             enc_key2 = beaupy.prompt("Encryption Key: ")
 
@@ -824,41 +824,41 @@ if __name__ == '__main__':
                                 enc_key_check = enc_key2
                                 enc_key_check = base64.b64decode(enc_key_check)
                             except Exception:
-                                clear()
+                                store.clear()
                                 print("Provided key isn't base64 encoded...\n\n")
                                 input('Press "enter" to continue...')
-                                clear()
+                                store.clear()
                                 continue
 
                             try:
                                 enc_key_check = enc_key2.split(':')
                             except Exception:
-                                clear()
+                                store.clear()
                                 print("Provided key isn't a valid chaeslib key...\n\n")
                                 input('Press "enter" to continue...')
-                                clear()
+                                store.clear()
                                 continue
 
                             unlock(file_path2, enc_key2)
-                            clear()
+                            store.clear()
                             input('Your file has been succesfully unlocked!\n\nPress "enter" to continue...')
-                            clear()
+                            store.clear()
                         else:
-                            clear()
+                            store.clear()
                             print("Database file is not encrypted/locked...")
                             input('\n\nPress "enter" to continue...')
-                            clear()
+                            store.clear()
                     else:
-                        clear()
+                        store.clear()
                         print("qS_links.db not found, downloading from the repository...")
                         wget.download("https://github.com/therealOri/qStore/blob/main/qS_links.db?raw=true")
                         input('\n\nDatabse is empty and not locked, skipping on unlocking the database.\n\nPress "enter" to continue...')
-                        clear()
+                        store.clear()
 
 
 
                 if db_options[5] in db_option:
-                    clear()
+                    store.clear()
                     break
 ############################### Database Options & functions ###############################
 
