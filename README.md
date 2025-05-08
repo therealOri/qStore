@@ -25,6 +25,17 @@ __ __
 <br>
 
 # Updates
+04/08/25
+
+Updated:
+
+- Added improovemnts to speed in regards to frame generation, qrcode generation, etc.
+
+- Saved old code to `qStore_OLD.py`
+
+- Updated function names in the menu to reflect changes in functionality.
+__ __
+
 6/2/23
 
 Updated:
